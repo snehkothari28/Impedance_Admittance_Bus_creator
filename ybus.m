@@ -1,5 +1,6 @@
 function [matrix,text] = ybus(tbl)
 bd = table2array(tbl);
+bd = [(1:size(bd,1)).' , bd];
 nb = max(bd(:,2:3),[],'all');
 matrix = zeros(nb);
 xc = size(bd,2)>5;
@@ -26,6 +27,5 @@ for row = 1:size(bd,1)
             matrix(m,m) = matrix(m,m) + 1i*bd(row,6);
         end
     end
-    
 end
-text = "Connection of bus from " + num2str(m)+ " to "+ num2str(n);
+text = "Connection of bus from " + num2str(m)+ " to "+ num2str(n) + " with admittance of " + num2str(y);

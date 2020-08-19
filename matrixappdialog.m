@@ -25,6 +25,24 @@ classdef matrixappdialog < matlab.apps.AppBase
         prev
     end
     
+    methods (Access = private)
+        
+        function colorme(app)
+            A = app.UITable_prev.Data;
+            B = app.UITable.Data;
+            
+            styleIndices = ones(size(B));
+            styleIndices(1:size(A,1),1:size(A,2)) = 0;
+            styleIndices(1:size(A,1),1:size(A,2)) = ((A - B(1:size(A,1),1:size(A,2))) ~= 0);
+            
+            [row,col] = find(styleIndices);
+            s = uistyle('BackgroundColor','yellow');
+            removeStyle(app.UITable);
+            addStyle(app.UITable,s,'cell',[row,col]);
+            
+        end
+    end
+    
 
     % Callbacks that handle component events
     methods (Access = private)
@@ -47,15 +65,18 @@ classdef matrixappdialog < matlab.apps.AppBase
                 app.AddNextElementButton.Enable = 'off';
             end
             app.UITable_prev.Data = app.matrix;
+            app.UITable_prev.RowName = 'numbered';
             if app.bus_type
                 [app.matrix, app.text] = ybus(app.tbl(1:app.counter,:));
-                app.UITable.Data = array2table(app.matrix);
             else
                 [app.matrix, app.text] = zbus(app.tbl(1:app.counter,:));
-                app.UITable.Data = array2table(app.matrix);
             end
-            app.EditField.Value = app.text;
+            app.UITable.Data = app.matrix;
+            app.UITable.RowName = 'numbered';
             
+            colorme(app);
+            
+            app.EditField.Value = app.text;
             
         end
     end
@@ -80,14 +101,14 @@ classdef matrixappdialog < matlab.apps.AppBase
             % Create AddNextElementButton
             app.AddNextElementButton = uibutton(app.matrixcreatorUIFigure, 'push');
             app.AddNextElementButton.ButtonPushedFcn = createCallbackFcn(app, @AddNextElementButtonPushed, true);
-            app.AddNextElementButton.Position = [583 11 112 22];
+            app.AddNextElementButton.Position = [776 11 112 22];
             app.AddNextElementButton.Text = 'Add Next Element';
 
             % Create EditField
             app.EditField = uieditfield(app.matrixcreatorUIFigure, 'text');
             app.EditField.Editable = 'off';
             app.EditField.HorizontalAlignment = 'center';
-            app.EditField.Position = [50 10 510 25];
+            app.EditField.Position = [50 10 708 25];
             app.EditField.Value = 'Press "Add Next Element"';
 
             % Create UITable_prev

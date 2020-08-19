@@ -1,7 +1,8 @@
 function [zbus_out,text] = zbus(tbl)
 inp = table2array(tbl);
-bd = inp(:,1:4);
-bd(:,4) = bd(:,4) + 1i* inp(:,5);
+bd = inp(:,1:3);
+bd(:,3) = bd(:,3) + 1i* inp(:,4);
+bd = [(1:size(bd,1)).' , bd];
 bus = [0]; %#ok<NBRAK>
 zbus_out = [];
 for data = 1:size(bd,1)
@@ -35,7 +36,7 @@ end
         zbus_new = [[zbus; zeros(diff,length(zbus)) ],zeros(length(zbus) + diff,diff)];
         
         zbus_new(node,node) = zb;
-        text = "type 1 modification: " + "Connection of new bus " + num2str(node) + " to reference bus" ;
+        text = "type 1 modification: " + "Connection of new bus " + num2str(node) + " to reference bus" + " with impedance of " + num2str(zb);
     end
 
     function [zbus_new,text] = mod2(zbus,old_bus,new,zb)
@@ -51,20 +52,20 @@ end
             zbus_new(new,new) = zb+zbus(old_bus,old_bus);
         end
         
-        text = "type 2 modification: " + "Connection of existing bus " + num2str(old_bus) + " to new bus" +num2str(new);
+        text = "type 2 modification: " + "Connection of existing bus " + num2str(old_bus) + " to new bus" +num2str(new)+ " with impedance of " + num2str(zb);
     end
 
     function [zbus_new,text] = mod3(zbus,old_bus,zb)
         [zbus_new,~] = mod2(zbus,old_bus,length(zbus)+1,zb);
         zbus_new = kron(zbus_new,length(zbus_new));
-        text = "type 3 modification: " + "Connection of existing bus " + num2str(old_bus) + " to reference bus";
+        text = "type 3 modification: " + "Connection of existing bus " + num2str(old_bus) + " to reference bus" + " with impedance of " + num2str(zb);
     end
 
     function [zbus_new,text] = mod4(zbus,bus1,bus2,zb)
         zbus_new = [[zbus; (zbus(bus1,:) -zbus(bus2,:))],[(zbus(:,bus1) -zbus(:,bus2));0]];
         zbus_new(end,end) = zb+ zbus(bus1,bus1) + zbus(bus2,bus2)-2*zbus(bus1,bus2);
         zbus_new = kron(zbus_new,length(zbus_new));
-        text = "type 4 modification: " + "Connection of existing bus " + num2str(bus1) + " to existing bus" +num2str(bus2);
+        text = "type 4 modification: " + "Connection of existing bus " + num2str(bus1) + " to existing bus" +num2str(bus2) + " with impedance of " + num2str(zb);
     end
 
     function zbus_new = kron(zbus,node)
@@ -77,6 +78,6 @@ end
         zbus_new(node,:) = [];
         zbus_new(:,node) = [];
     end
-    
+
 end
 

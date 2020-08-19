@@ -40,20 +40,20 @@ classdef main < matlab.apps.AppBase
 
         % Code that executes after component creation
         function StartupFcn(app)
-            app.components.Value = 5;
-            app.rows = 5;
+            app.components.Value = 6;
+            app.rows = 6;
             
-            bd = [1 1 0 0 1.25 0;
-                2 1 2 0 0.25 0;
-                3 2 3 0 0.4 0;
-                4 3 0 0 1.25 0;
-                5 3 4 0 0.2 0;
-                6 4 2 0 0.125 0];
+            bd = [1 0 0 1.25 0;
+                1 2 0 0.25 0;
+                2 3 0 0.4 0;
+                3 0 0 1.25 0;
+                3 4 0 0.2 0;
+                4 2 0 0.125 0];
             app.tbl = array2table(bd);
-            
-            updateindex(app);
+            %updateindex(app);
             app.cap = 0;
             app.UITable.Data = app.tbl(:,1:end-1+app.cap);
+            app.UITable.RowName = 'numbered';
             app.all_ok = 0;
         end
 
@@ -70,15 +70,16 @@ classdef main < matlab.apps.AppBase
                 app.EditField.Value = 'Everything seems okay!';
                 app.all_ok = 1;
                 app.UITable.Enable = 'on';
-                updateindex(app);
+                %updateindex(app);
                 if app.rows > height(app.tbl)
-                    diff = array2table(zeros(app.rows - height(app.tbl),6));
+                    diff = array2table(zeros(app.rows - height(app.tbl),5));
+                    diff.Properties.VariableNames = app.tbl.Properties.VariableNames;
                     app.tbl = [app.tbl; diff];
-                    updateindex(app);
+                    %updateindex(app);
                     app.UITable.Data = app.tbl(:,1:end-1 + app.cap);
                 else
                     app.tbl((height(app.tbl)- app.rows+1):end,:) = [];
-                    updateindex(app);
+                    %updateindex(app);
                     app.UITable.Data = app.tbl(:,1:end-1 + app.cap);
                 end
             end
@@ -86,7 +87,7 @@ classdef main < matlab.apps.AppBase
 
         % Button pushed function: VerifyMatrixButton
         function VerifyMatrixButtonPushed(app, event)
-            if any((table2array(app.UITable.Data(:,2)) + table2array(app.UITable.Data(:,3))) == 0)
+            if any((table2array(app.UITable.Data(:,1)) + table2array(app.UITable.Data(:,2))) == 0)
                 app.all_ok = 0;
             else
                 app.all_ok = 1;
@@ -103,7 +104,7 @@ classdef main < matlab.apps.AppBase
             indices = event.Indices;
             newData = event.NewData;
             
-            if or((indices(2) == 2),(indices(2) == 3))
+            if or((indices(2) == 1),(indices(2) == 2))
                 if newData < 0
                     app.EditField.Value = 'Only postive bus allowed';
                     app.all_ok = 1;
@@ -150,21 +151,21 @@ classdef main < matlab.apps.AppBase
         % Button pushed function: ResetmatrixButton
         function ResetmatrixButtonPushed(app, event)
             if app.bus_type
-                bd = [1, 1, 2, 0.2, 0.8, 0.02;
-                    2, 2, 3, 0.3, 0.9, 0.03;
-                    3, 2, 4, 0.25, 1, 0.04;
-                    4, 3, 4, 0.2, 0.8, 0.02;
-                    5, 1, 3, 0.1, 0.4, 0.01];
+                bd = [1, 2, 0.2, 0.8, 0.02;
+                    2, 3, 0.3, 0.9, 0.03;
+                    2, 4, 0.25, 1, 0.04;
+                    3, 4, 0.2, 0.8, 0.02;
+                    1, 3, 0.1, 0.4, 0.01];
             else
-                bd = [1 1 0 0 1.25 0;
-                    2 1 2 0 0.25 0;
-                    3 2 3 0 0.4 0;
-                    4 3 0 0 1.25 0;
-                    5 3 4 0 0.2 0;
-                    6 4 2 0 0.125 0];
+                bd = [1 0 0 1.25 0;
+                    1 2 0 0.25 0;
+                    2 3 0 0.4 0;
+                    3 0 0 1.25 0;
+                    3 4 0 0.2 0;
+                    4 2 0 0.125 0];
             end
             app.tbl = array2table(bd);
-            updateindex(app);
+            %updateindex(app);
             app.cap = 0;
             app.UITable.Data = app.tbl(:,1:end-1+app.cap);
             app.all_ok = 0;
@@ -185,9 +186,9 @@ classdef main < matlab.apps.AppBase
 
             % Create UITable
             app.UITable = uitable(app.BusimpedanceadmittancematrixUIFigure);
-            app.UITable.ColumnName = {'Sr. No.'; 'bus1'; 'bus2'; 'Resitive Component'; 'Inductive Component'; 'Charging Component'};
+            app.UITable.ColumnName = {'Bus1'; 'Bus2'; 'Resitive Component'; 'Inductive Component'; 'Charging Component'};
             app.UITable.RowName = {};
-            app.UITable.ColumnEditable = [false true true true true true];
+            app.UITable.ColumnEditable = [true true true true true true];
             app.UITable.CellEditCallback = createCallbackFcn(app, @UITableCellEdit, true);
             app.UITable.Position = [31 80 580 261];
 
